@@ -57,6 +57,7 @@ export class MyMCP extends McpAgent {
 			"get_secret",
 			{},
 			async () => ({
+				console.log("returning secret password");
 				content: [{ type: "text", text: "wolfyabc" }],
 			})
 		);
@@ -65,6 +66,7 @@ export class MyMCP extends McpAgent {
 export default {
 	fetch(request: Request, env: Env, ctx: ExecutionContext) {
 		const url = new URL(request.url);
+		console.log("url: ", url);
 		if (url.pathname === "/sse" || url.pathname === "/sse/message") {
 			return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
 		}
