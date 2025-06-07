@@ -75,6 +75,26 @@ export class MyMCP extends McpAgent {
 
     this.server.tool("get_secret", {}, getSecret);
 
+    async function getClothing() {
+      console.log("returning all clothing");
+      const { data: clothing, error } = await supabase
+        .from("clothing")
+        .select("*");
+
+      if (error) {
+        return {
+          content: [
+            { type: "text", text: `Error fetching clothing: ${error.message}` },
+          ],
+        };
+      }
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(clothing, null, 2) }],
+      };
+    }
+    this.server.tool("get_clothing", {}, getClothing);
+
     async function getGreeting(uri, { name }) {
       return {
         contents: [
