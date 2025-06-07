@@ -12,15 +12,21 @@ export class MyMCP extends McpAgent {
     name: "Authless Calculator",
     version: "1.0.0",
   });
+
   async init() {
-    // Simple addition tool
-    this.server.tool(
-      "add",
-      { a: z.number(), b: z.number() },
-      async ({ a, b }) => ({
-        content: [{ type: "text", text: String(a + b) }],
-      })
+    const supabase = createClient(
+      this.env.SUPABASE_URL,
+      this.env.SUPABASE_ANON_KEY
     );
+
+    // Simple addition tool
+    async function addNumbers({ a, b }) {
+      return {
+        content: [{ type: "text", text: String(a + b) }],
+      };
+    }
+
+    this.server.tool("add", { a: z.number(), b: z.number() }, addNumbers);
 
     // Calculator tool with multiple operations
     this.server.tool(
@@ -60,29 +66,38 @@ export class MyMCP extends McpAgent {
     );
 
     // Secret tool
-    this.server.tool("get_secret", {}, async () => {
-      console.log("returning secret password"); // ✅ Inside function body
+    async function getSecret() {
+      console.log("returning secret password");
       return {
         content: [{ type: "text", text: "wolfyabc" }],
       };
-    });
+    }
 
-    this.server.resource(
-      "greeting",
-      new ResourceTemplate("greeting://{name}", { list: undefined }),
-      async (uri, { name }) => ({
+    this.server.tool("get_secret", {}, getSecret);
+
+    async function getGreeting(uri, { name }) {
+      return {
         contents: [
           {
             uri: uri.href,
             text: `Hello, ${name}!`,
           },
         ],
-      })
+      };
+    }
+
+    this.server.resource(
+      "greeting",
+      new ResourceTemplate("greeting://{name}", { list: undefined }),
+      getGreeting
     );
   }
 }
 
-async function get_all_clothing(supabase) {
+async function get_all_clothing(env: Env) {
+  const supabaseUrl = env.SUPABASE_URL;
+  const supabaseKey = env.SUPABASE_ANON_KEY;
+  const supabase = createClient(supabaseUrl, supabaseKey);
   let { data: clothing, error } = await supabase.from("clothing").select("*");
   console.log(clothing);
 }
@@ -90,10 +105,8 @@ async function get_all_clothing(supabase) {
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
     console.log("hello from cloudflare worker!2");
-    const supabaseUrl = env.SUPABASE_URL;
-    const supabaseKey = env.SUPABASE_ANON_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    get_all_clothing(supabase);
+
+    get_all_clothing(env);
 
     const url = new URL(request.url);
     console.log("url: ", url);
