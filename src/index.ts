@@ -56,10 +56,12 @@ export class MyMCP extends McpAgent {
 		this.server.tool(
 			"get_secret",
 			{},
-			async () => ({
-				console.log("returning secret password");
-				content: [{ type: "text", text: "wolfyabc" }],
-			})
+			async () => {
+			    console.log("returning secret password");  // ✅ Inside function body
+			    return {
+			        content: [{ type: "text", text: "wolfyabc" }],
+			    };
+			}
 		);
 	}
 }
