@@ -5,6 +5,10 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "remote-mcp-server-authless",
+	"vars": {
+		"SUPABASE_URL": "https://zoyvqdccoilrpiwpzzym.supabase.co",
+		"SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpveXZxZGNjb2lscnBpd3B6enltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2NjI2MjIsImV4cCI6MjA2NDIzODYyMn0.wjpV354X4DLyVqGD2w9v40cD5nJHBWkOV51v4mBQ7G4",
+	  },
 	"main": "src/index.ts",
 	"compatibility_date": "2025-03-10",
 	"compatibility_flags": ["nodejs_compat"],

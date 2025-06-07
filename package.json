@@ -13,8 +13,9 @@
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.1",
+		"@supabase/supabase-js": "^2.50.0",
 		"agents": "^0.0.94",
-		"zod": "^3.25.51"
+		"zod": "^3.25.56"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

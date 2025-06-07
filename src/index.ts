@@ -4,8 +4,8 @@ import {
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
 
-console.log("hello from cloudflare worker!");
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
   server = new McpServer({
@@ -81,8 +81,20 @@ export class MyMCP extends McpAgent {
     );
   }
 }
+
+async function get_all_clothing(supabase) {
+  let { data: clothing, error } = await supabase.from("clothing").select("*");
+  console.log(clothing);
+}
+
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    console.log("hello from cloudflare worker!2");
+    const supabaseUrl = env.SUPABASE_URL;
+    const supabaseKey = env.SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    get_all_clothing(supabase);
+
     const url = new URL(request.url);
     console.log("url: ", url);
     if (url.pathname === "/sse" || url.pathname === "/sse/message") {
