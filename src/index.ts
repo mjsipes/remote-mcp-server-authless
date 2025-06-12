@@ -1,10 +1,18 @@
 import { McpAgent } from "agents/mcp";
-import {
-  McpServer,
-  ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { register_add } from "./components/add";
+import { register_calculate } from "./components/calculate";
+import { register_secret } from "./components/secret";
+import { register_layer } from "./components/layer";
+import { register_greeting } from "./components/greeting";
+
+// Define Env interface
+interface Env {
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
+  [key: string]: string | undefined;
+}
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
@@ -12,121 +20,35 @@ export class MyMCP extends McpAgent {
     name: "Authless Calculator",
     version: "1.0.0",
   });
+  
+  declare env: Env;
+  declare supabase: SupabaseClient;
 
   async init() {
-    const supabase = createClient(
+    // Create Supabase client once
+    console.log("creating supabase client");
+    console.log("env", this.env);
+    this.supabase = createClient(
       this.env.SUPABASE_URL,
       this.env.SUPABASE_ANON_KEY
     );
 
-    // Simple addition tool
-    async function addNumbers({ a, b }) {
-      return {
-        content: [{ type: "text", text: String(a + b) }],
-      };
-    }
+    const { data, error } = await this.supabase.from("layer").select("*");
+    console.log("data", data);
+    console.log("error", error);
 
-    this.server.tool("add", { a: z.number(), b: z.number() }, addNumbers);
-
-    // Calculator tool with multiple operations
-    this.server.tool(
-      "calculate",
-      {
-        operation: z.enum(["add", "subtract", "multiply", "divide"]),
-        a: z.number(),
-        b: z.number(),
-      },
-      async ({ operation, a, b }) => {
-        let result: number;
-        switch (operation) {
-          case "add":
-            result = a + b;
-            break;
-          case "subtract":
-            result = a - b;
-            break;
-          case "multiply":
-            result = a * b;
-            break;
-          case "divide":
-            if (b === 0)
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: "Error: Cannot divide by zero",
-                  },
-                ],
-              };
-            result = a / b;
-            break;
-        }
-        return { content: [{ type: "text", text: String(result) }] };
-      }
-    );
-
-    // Secret tool
-    async function getSecret() {
-      console.log("returning secret password");
-      return {
-        content: [{ type: "text", text: "wolfyabc" }],
-      };
-    }
-
-    this.server.tool("get_secret", {}, getSecret);
-
-    async function getClothing() {
-      console.log("returning all clothing");
-      const { data: clothing, error } = await supabase
-        .from("clothing")
-        .select("*");
-
-      if (error) {
-        return {
-          content: [
-            { type: "text", text: `Error fetching clothing: ${error.message}` },
-          ],
-        };
-      }
-
-      return {
-        content: [{ type: "text", text: JSON.stringify(clothing, null, 2) }],
-      };
-    }
-    this.server.tool("get_clothing", {}, getClothing);
-
-    async function getGreeting(uri, { name }) {
-      return {
-        contents: [
-          {
-            uri: uri.href,
-            text: `Hello, ${name}!`,
-          },
-        ],
-      };
-    }
-
-    this.server.resource(
-      "greeting",
-      new ResourceTemplate("greeting://{name}", { list: undefined }),
-      getGreeting
-    );
+    // Register all components directly
+    register_add(this.server);
+    register_calculate(this.server);
+    register_secret(this.server);
+    register_layer(this.server, this.supabase);
+    register_greeting(this.server);
   }
-}
-
-async function get_all_clothing(env: Env) {
-  const supabaseUrl = env.SUPABASE_URL;
-  const supabaseKey = env.SUPABASE_ANON_KEY;
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  let { data: clothing, error } = await supabase.from("clothing").select("*");
-  console.log(clothing);
 }
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    console.log("hello from cloudflare worker!2");
-
-    get_all_clothing(env);
+    console.log("hello from cloudflare worker!");
 
     const url = new URL(request.url);
     console.log("url: ", url);

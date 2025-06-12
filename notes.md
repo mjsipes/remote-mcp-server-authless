@@ -20,3 +20,5 @@ open http://localhost:5173
 # Deploy to production
 npx wrangler@latest deploy
 ```
+
+tomorrow see if cursor can recreate the cloudflare worker as a supabase edge function, other wise we will start building it.
