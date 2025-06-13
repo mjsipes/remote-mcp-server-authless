@@ -33,14 +33,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// .wrangler/tmp/bundle-1Iwz8Z/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-E8stGR/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
   return request;
 }
 var init_strip_cf_connecting_ip_header = __esm({
-  ".wrangler/tmp/bundle-1Iwz8Z/strip-cf-connecting-ip-header.js"() {
+  ".wrangler/tmp/bundle-E8stGR/strip-cf-connecting-ip-header.js"() {
     "use strict";
     __name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -9177,14 +9177,14 @@ var require_browser = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-1Iwz8Z/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-E8stGR/middleware-loader.entry.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 
-// .wrangler/tmp/bundle-1Iwz8Z/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-E8stGR/middleware-insertion-facade.js
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -29872,15 +29872,69 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 function register_outfit_tools(server, supabase) {
+  server.tool("get_all_outfits", {}, async () => {
+    const { data, error: error3 } = await supabase.from("outfit").select("*").order("created_at", { ascending: false });
+    if (error3) {
+      return {
+        content: [
+          { type: "text", text: `Error getting outfits: ${error3.message}` }
+        ],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+    };
+  });
   server.tool(
-    "get_all_outfits",
-    {},
-    async () => {
-      const { data, error: error3 } = await supabase.from("outfit").select("*").order("created_at", { ascending: false });
+    "get_outfit_details",
+    { outfit_id: external_exports.string() },
+    async ({ outfit_id }) => {
+      const { data, error: error3 } = await supabase.rpc("get_outfit_details", {
+        outfit_uuid: outfit_id
+      });
       if (error3) {
         return {
-          content: [{ type: "text", text: `Error getting outfits: ${error3.message}` }],
-          isError: true
+          content: [
+            {
+              type: "text",
+              text: `Error getting outfit details: ${error3.message}`
+            }
+          ]
+        };
+      }
+      console.log("data", data);
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
+  server.tool(
+    "get_outfit_details_v2",
+    { outfit_id: external_exports.string() },
+    async ({ outfit_id }) => {
+      const { data, error: error3 } = await supabase.from("outfit").select(
+        `
+            name,
+            total_warmth,
+            outfit_layer(
+                layer(
+                    name,
+                    warmth,
+                    top,
+                    bottom
+                )
+            )
+        `
+      ).eq("id", outfit_id).single();
+      if (error3) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error getting outfit details: ${error3.message}`
+            }
+          ]
         };
       }
       return {
@@ -29888,42 +29942,35 @@ function register_outfit_tools(server, supabase) {
       };
     }
   );
-  server.tool("get_outfit_details", { outfit_id: external_exports.string() }, async ({ outfit_id }) => {
-    const { data, error: error3 } = await supabase.rpc("get_outfit_details", {
-      outfit_uuid: outfit_id
-    });
-    if (error3) {
-      return {
-        content: [
-          { type: "text", text: `Error getting outfit details: ${error3.message}` }
-        ]
-      };
-    }
-    console.log("data", data);
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
-    };
-  });
   server.tool(
     "insert_outfit",
     {
       name: external_exports.string().optional()
     },
-    async ({
-      name: name17 = null
-    }) => {
+    async ({ name: name17 = null }) => {
       const { data, error: error3 } = await supabase.from("outfit").insert({
         name: name17 || null,
         total_warmth: 0
       }).select();
       if (error3) {
         return {
-          content: [{ type: "text", text: `Error inserting outfit: ${error3.message}` }],
+          content: [
+            { type: "text", text: `Error inserting outfit: ${error3.message}` }
+          ],
           isError: true
         };
       }
       return {
-        content: [{ type: "text", text: `Outfit created successfully: ${JSON.stringify(data, null, 2)}` }]
+        content: [
+          {
+            type: "text",
+            text: `Outfit created successfully: ${JSON.stringify(
+              data,
+              null,
+              2
+            )}`
+          }
+        ]
       };
     }
   );
@@ -29934,23 +29981,30 @@ function register_outfit_tools(server, supabase) {
       name: external_exports.string().optional(),
       total_warmth: external_exports.number().optional()
     },
-    async ({
-      id,
-      name: name17 = null,
-      total_warmth = null
-    }) => {
+    async ({ id, name: name17 = null, total_warmth = null }) => {
       const updates = {};
       if (name17 !== null) updates.name = name17 || null;
       if (total_warmth !== null) updates.total_warmth = total_warmth || null;
       const { data, error: error3 } = await supabase.from("outfit").update(updates).eq("id", id).select();
       if (error3) {
         return {
-          content: [{ type: "text", text: `Error updating outfit: ${error3.message}` }],
+          content: [
+            { type: "text", text: `Error updating outfit: ${error3.message}` }
+          ],
           isError: true
         };
       }
       return {
-        content: [{ type: "text", text: `Outfit updated successfully: ${JSON.stringify(data, null, 2)}` }]
+        content: [
+          {
+            type: "text",
+            text: `Outfit updated successfully: ${JSON.stringify(
+              data,
+              null,
+              2
+            )}`
+          }
+        ]
       };
     }
   );
@@ -29963,12 +30017,23 @@ function register_outfit_tools(server, supabase) {
       const { data, error: error3 } = await supabase.from("outfit").delete().eq("id", id).select();
       if (error3) {
         return {
-          content: [{ type: "text", text: `Error deleting outfit: ${error3.message}` }],
+          content: [
+            { type: "text", text: `Error deleting outfit: ${error3.message}` }
+          ],
           isError: true
         };
       }
       return {
-        content: [{ type: "text", text: `Outfit deleted successfully: ${JSON.stringify(data, null, 2)}` }]
+        content: [
+          {
+            type: "text",
+            text: `Outfit deleted successfully: ${JSON.stringify(
+              data,
+              null,
+              2
+            )}`
+          }
+        ]
       };
     }
   );
@@ -30471,7 +30536,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCtx
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-1Iwz8Z/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-E8stGR/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -30508,7 +30573,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-1Iwz8Z/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-E8stGR/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
