@@ -3,11 +3,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { register_secret } from "./components/secret";
 import { register_layer } from "./components/layer";
-import { register_greeting } from "./components/greeting";
 import { register_get_outfit_details } from "./components/get_outfit_details";
 import { register_calculate_outfit_warmth } from "./components/calculate_outfit_warmth";
 import { register_logs } from "./components/get_logs";
 import { register_get_weather } from "./components/get_weather";
+import { register_schema } from "./components/schema";
 
 // Define Env interface
 interface Env {
@@ -42,11 +42,11 @@ export class MyMCP extends McpAgent {
     // Register all components directly
     register_secret(this.server);
     register_layer(this.server, this.supabase);
-    register_greeting(this.server);
     register_get_outfit_details(this.server, this.supabase);
     register_calculate_outfit_warmth(this.server, this.supabase);
     register_logs(this.server, this.supabase);
     register_get_weather(this.server, this.supabase);
+    register_schema(this.server);
   }
 }
 

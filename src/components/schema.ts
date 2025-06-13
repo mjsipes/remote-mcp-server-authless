@@ -1,75 +1,73 @@
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export function register_schema(server: McpServer) {
-  async function getSchema(uri: URL, variables: Record<string, unknown>) {
-    const schema = {
-      tables: {
-        layer: {
-          columns: {
-            id: { type: "uuid", primaryKey: true, default: "gen_random_uuid()" },
-            created_at: { type: "timestamp with time zone", notNull: true, default: "now()" },
-            name: { type: "text" },
-            description: { type: "text" },
-            warmth: { type: "smallint" },
-            top: { type: "boolean" },
-            bottom: { type: "boolean" }
-          }
-        },
-        log: {
-          columns: {
-            id: { type: "uuid", primaryKey: true, default: "gen_random_uuid()" },
-            created_at: { type: "timestamp with time zone", notNull: true, default: "now()" },
-            outfit_id: { type: "uuid", default: "gen_random_uuid()", foreignKey: "outfit(id)" },
-            date: { type: "date" },
-            comfort_level: { type: "smallint" },
-            feedback: { type: "text" },
-            was_too_hot: { type: "boolean" },
-            was_too_cold: { type: "boolean" },
-            weather_id: { type: "uuid", foreignKey: "weather(id)" }
-          }
-        },
-        outfit: {
-          columns: {
-            id: { type: "uuid", primaryKey: true, default: "gen_random_uuid()" },
-            created_at: { type: "timestamp with time zone", notNull: true, default: "now()" },
-            name: { type: "text" },
-            total_warmth: { type: "smallint" }
-          }
-        },
-        outfit_layer: {
-          columns: {
-            id: { type: "uuid", primaryKey: true, default: "gen_random_uuid()" },
-            created_at: { type: "timestamp with time zone", notNull: true, default: "now()" },
-            outfit_id: { type: "uuid", default: "gen_random_uuid()", foreignKey: "outfit(id)" },
-            layer_id: { type: "uuid", default: "gen_random_uuid()", foreignKey: "layer(id)" }
-          }
-        },
-        weather: {
-          columns: {
-            id: { type: "uuid", primaryKey: true, default: "gen_random_uuid()" },
-            created_at: { type: "timestamp with time zone", notNull: true, default: "now()" },
-            latitude: { type: "double precision" },
-            longitude: { type: "double precision" },
-            date: { type: "date" },
-            weather_data: { type: "jsonb" }
-          }
-        }
-      }
-    };
-
-    return {
-      contents: [
-        {
-          uri: uri.href,
-          text: JSON.stringify(schema, null, 2),
-        },
-      ],
-    };
-  }
-
   server.resource(
     "schema",
-    new ResourceTemplate("schema://", { list: undefined }),
-    getSchema
+    "schema://database-schema",
+    async (uri) => {
+      const schema = `-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.layer (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  description text,
+  warmth smallint,
+  top boolean,
+  bottom boolean,
+  CONSTRAINT layer_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.log (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  outfit_id uuid DEFAULT gen_random_uuid(),
+  date date,
+  comfort_level smallint,
+  feedback text,
+  was_too_hot boolean,
+  was_too_cold boolean,
+  weather_id uuid,
+  CONSTRAINT log_pkey PRIMARY KEY (id),
+  CONSTRAINT outfit_log_outfit_id_fkey FOREIGN KEY (outfit_id) REFERENCES public.outfit(id),
+  CONSTRAINT outfit_log_weather_id_fkey FOREIGN KEY (weather_id) REFERENCES public.weather(id)
+);
+
+CREATE TABLE public.outfit (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  total_warmth smallint,
+  CONSTRAINT outfit_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.outfit_layer (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  outfit_id uuid DEFAULT gen_random_uuid(),
+  layer_id uuid DEFAULT gen_random_uuid(),
+  CONSTRAINT outfit_layer_pkey PRIMARY KEY (id),
+  CONSTRAINT outfit_layer_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES public.layer(id),
+  CONSTRAINT outfit_layer_outfit_id_fkey FOREIGN KEY (outfit_id) REFERENCES public.outfit(id)
+);
+
+CREATE TABLE public.weather (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  latitude double precision,
+  longitude double precision,
+  date date,
+  weather_data jsonb,
+  CONSTRAINT weather_pkey PRIMARY KEY (id)
+);`;
+
+      return {
+        contents: [{
+          uri: uri.href,
+          text: schema
+        }]
+      };
+    }
   );
-} 
+}

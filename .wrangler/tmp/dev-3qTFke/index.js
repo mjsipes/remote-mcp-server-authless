@@ -33,14 +33,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// .wrangler/tmp/bundle-UZMjW9/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-1Iwz8Z/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
   return request;
 }
 var init_strip_cf_connecting_ip_header = __esm({
-  ".wrangler/tmp/bundle-UZMjW9/strip-cf-connecting-ip-header.js"() {
+  ".wrangler/tmp/bundle-1Iwz8Z/strip-cf-connecting-ip-header.js"() {
     "use strict";
     __name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -9177,14 +9177,14 @@ var require_browser = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-UZMjW9/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1Iwz8Z/middleware-loader.entry.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 
-// .wrangler/tmp/bundle-UZMjW9/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1Iwz8Z/middleware-insertion-facade.js
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -22645,229 +22645,6 @@ init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var MAX_TEMPLATE_LENGTH = 1e6;
-var MAX_VARIABLE_LENGTH = 1e6;
-var MAX_TEMPLATE_EXPRESSIONS = 1e4;
-var MAX_REGEX_LENGTH = 1e6;
-var UriTemplate = class _UriTemplate {
-  static {
-    __name(this, "UriTemplate");
-  }
-  /**
-   * Returns true if the given string contains any URI template expressions.
-   * A template expression is a sequence of characters enclosed in curly braces,
-   * like {foo} or {?bar}.
-   */
-  static isTemplate(str) {
-    return /\{[^}\s]+\}/.test(str);
-  }
-  static validateLength(str, max, context2) {
-    if (str.length > max) {
-      throw new Error(`${context2} exceeds maximum length of ${max} characters (got ${str.length})`);
-    }
-  }
-  get variableNames() {
-    return this.parts.flatMap((part) => typeof part === "string" ? [] : part.names);
-  }
-  constructor(template) {
-    _UriTemplate.validateLength(template, MAX_TEMPLATE_LENGTH, "Template");
-    this.template = template;
-    this.parts = this.parse(template);
-  }
-  toString() {
-    return this.template;
-  }
-  parse(template) {
-    const parts = [];
-    let currentText = "";
-    let i = 0;
-    let expressionCount = 0;
-    while (i < template.length) {
-      if (template[i] === "{") {
-        if (currentText) {
-          parts.push(currentText);
-          currentText = "";
-        }
-        const end = template.indexOf("}", i);
-        if (end === -1)
-          throw new Error("Unclosed template expression");
-        expressionCount++;
-        if (expressionCount > MAX_TEMPLATE_EXPRESSIONS) {
-          throw new Error(`Template contains too many expressions (max ${MAX_TEMPLATE_EXPRESSIONS})`);
-        }
-        const expr = template.slice(i + 1, end);
-        const operator = this.getOperator(expr);
-        const exploded = expr.includes("*");
-        const names = this.getNames(expr);
-        const name17 = names[0];
-        for (const name18 of names) {
-          _UriTemplate.validateLength(name18, MAX_VARIABLE_LENGTH, "Variable name");
-        }
-        parts.push({ name: name17, operator, names, exploded });
-        i = end + 1;
-      } else {
-        currentText += template[i];
-        i++;
-      }
-    }
-    if (currentText) {
-      parts.push(currentText);
-    }
-    return parts;
-  }
-  getOperator(expr) {
-    const operators = ["+", "#", ".", "/", "?", "&"];
-    return operators.find((op) => expr.startsWith(op)) || "";
-  }
-  getNames(expr) {
-    const operator = this.getOperator(expr);
-    return expr.slice(operator.length).split(",").map((name17) => name17.replace("*", "").trim()).filter((name17) => name17.length > 0);
-  }
-  encodeValue(value, operator) {
-    _UriTemplate.validateLength(value, MAX_VARIABLE_LENGTH, "Variable value");
-    if (operator === "+" || operator === "#") {
-      return encodeURI(value);
-    }
-    return encodeURIComponent(value);
-  }
-  expandPart(part, variables) {
-    if (part.operator === "?" || part.operator === "&") {
-      const pairs = part.names.map((name17) => {
-        const value2 = variables[name17];
-        if (value2 === void 0)
-          return "";
-        const encoded2 = Array.isArray(value2) ? value2.map((v) => this.encodeValue(v, part.operator)).join(",") : this.encodeValue(value2.toString(), part.operator);
-        return `${name17}=${encoded2}`;
-      }).filter((pair) => pair.length > 0);
-      if (pairs.length === 0)
-        return "";
-      const separator = part.operator === "?" ? "?" : "&";
-      return separator + pairs.join("&");
-    }
-    if (part.names.length > 1) {
-      const values2 = part.names.map((name17) => variables[name17]).filter((v) => v !== void 0);
-      if (values2.length === 0)
-        return "";
-      return values2.map((v) => Array.isArray(v) ? v[0] : v).join(",");
-    }
-    const value = variables[part.name];
-    if (value === void 0)
-      return "";
-    const values = Array.isArray(value) ? value : [value];
-    const encoded = values.map((v) => this.encodeValue(v, part.operator));
-    switch (part.operator) {
-      case "":
-        return encoded.join(",");
-      case "+":
-        return encoded.join(",");
-      case "#":
-        return "#" + encoded.join(",");
-      case ".":
-        return "." + encoded.join(".");
-      case "/":
-        return "/" + encoded.join("/");
-      default:
-        return encoded.join(",");
-    }
-  }
-  expand(variables) {
-    let result = "";
-    let hasQueryParam = false;
-    for (const part of this.parts) {
-      if (typeof part === "string") {
-        result += part;
-        continue;
-      }
-      const expanded = this.expandPart(part, variables);
-      if (!expanded)
-        continue;
-      if ((part.operator === "?" || part.operator === "&") && hasQueryParam) {
-        result += expanded.replace("?", "&");
-      } else {
-        result += expanded;
-      }
-      if (part.operator === "?" || part.operator === "&") {
-        hasQueryParam = true;
-      }
-    }
-    return result;
-  }
-  escapeRegExp(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
-  partToRegExp(part) {
-    const patterns = [];
-    for (const name18 of part.names) {
-      _UriTemplate.validateLength(name18, MAX_VARIABLE_LENGTH, "Variable name");
-    }
-    if (part.operator === "?" || part.operator === "&") {
-      for (let i = 0; i < part.names.length; i++) {
-        const name18 = part.names[i];
-        const prefix = i === 0 ? "\\" + part.operator : "&";
-        patterns.push({
-          pattern: prefix + this.escapeRegExp(name18) + "=([^&]+)",
-          name: name18
-        });
-      }
-      return patterns;
-    }
-    let pattern;
-    const name17 = part.name;
-    switch (part.operator) {
-      case "":
-        pattern = part.exploded ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)";
-        break;
-      case "+":
-      case "#":
-        pattern = "(.+)";
-        break;
-      case ".":
-        pattern = "\\.([^/,]+)";
-        break;
-      case "/":
-        pattern = "/" + (part.exploded ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)");
-        break;
-      default:
-        pattern = "([^/]+)";
-    }
-    patterns.push({ pattern, name: name17 });
-    return patterns;
-  }
-  match(uri) {
-    _UriTemplate.validateLength(uri, MAX_TEMPLATE_LENGTH, "URI");
-    let pattern = "^";
-    const names = [];
-    for (const part of this.parts) {
-      if (typeof part === "string") {
-        pattern += this.escapeRegExp(part);
-      } else {
-        const patterns = this.partToRegExp(part);
-        for (const { pattern: partPattern, name: name17 } of patterns) {
-          pattern += partPattern;
-          names.push({ name: name17, exploded: part.exploded });
-        }
-      }
-    }
-    pattern += "$";
-    _UriTemplate.validateLength(pattern, MAX_REGEX_LENGTH, "Generated regex pattern");
-    const regex = new RegExp(pattern);
-    const match = uri.match(regex);
-    if (!match)
-      return null;
-    const result = {};
-    for (let i = 0; i < names.length; i++) {
-      const { name: name17, exploded } = names[i];
-      const value = match[i + 1];
-      const cleanName = name17.replace("*", "");
-      if (exploded && value.includes(",")) {
-        result[cleanName] = value.split(",");
-      } else {
-        result[cleanName] = value;
-      }
-    }
-    return result;
-  }
-};
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
@@ -23360,34 +23137,6 @@ var McpServer = class {
     if (this.isConnected()) {
       this.server.sendPromptListChanged();
     }
-  }
-};
-var ResourceTemplate = class {
-  static {
-    __name(this, "ResourceTemplate");
-  }
-  constructor(uriTemplate, _callbacks) {
-    this._callbacks = _callbacks;
-    this._uriTemplate = typeof uriTemplate === "string" ? new UriTemplate(uriTemplate) : uriTemplate;
-  }
-  /**
-   * Gets the URI template pattern.
-   */
-  get uriTemplate() {
-    return this._uriTemplate;
-  }
-  /**
-   * Gets the list callback, if one was provided.
-   */
-  get listCallback() {
-    return this._callbacks.list;
-  }
-  /**
-   * Gets the callback for completing a specific URI template variable, if one was provided.
-   */
-  completeCallback(variable) {
-    var _a18;
-    return (_a18 = this._callbacks.complete) === null || _a18 === void 0 ? void 0 : _a18[variable];
   }
 };
 var EMPTY_OBJECT_JSON_SCHEMA = {
@@ -30034,33 +29783,6 @@ function register_layer(server, supabase) {
 }
 __name(register_layer, "register_layer");
 
-// src/components/greeting.ts
-init_strip_cf_connecting_ip_header();
-init_modules_watch_stub();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-init_performance2();
-function register_greeting(server) {
-  async function getGreeting(uri, variables) {
-    const name17 = variables.name;
-    return {
-      contents: [
-        {
-          uri: uri.href,
-          text: `Hello, ${name17}!`
-        }
-      ]
-    };
-  }
-  __name(getGreeting, "getGreeting");
-  server.resource(
-    "greeting",
-    new ResourceTemplate("greeting://{name}", { list: void 0 }),
-    getGreeting
-  );
-}
-__name(register_greeting, "register_greeting");
-
 // src/components/get_outfit_details.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
@@ -30215,6 +29937,84 @@ function register_get_weather(server, supabase) {
 }
 __name(register_get_weather, "register_get_weather");
 
+// src/components/schema.ts
+init_strip_cf_connecting_ip_header();
+init_modules_watch_stub();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function register_schema(server) {
+  server.resource(
+    "schema",
+    "schema://database-schema",
+    async (uri) => {
+      const schema = `-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.layer (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  description text,
+  warmth smallint,
+  top boolean,
+  bottom boolean,
+  CONSTRAINT layer_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.log (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  outfit_id uuid DEFAULT gen_random_uuid(),
+  date date,
+  comfort_level smallint,
+  feedback text,
+  was_too_hot boolean,
+  was_too_cold boolean,
+  weather_id uuid,
+  CONSTRAINT log_pkey PRIMARY KEY (id),
+  CONSTRAINT outfit_log_outfit_id_fkey FOREIGN KEY (outfit_id) REFERENCES public.outfit(id),
+  CONSTRAINT outfit_log_weather_id_fkey FOREIGN KEY (weather_id) REFERENCES public.weather(id)
+);
+
+CREATE TABLE public.outfit (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  total_warmth smallint,
+  CONSTRAINT outfit_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.outfit_layer (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  outfit_id uuid DEFAULT gen_random_uuid(),
+  layer_id uuid DEFAULT gen_random_uuid(),
+  CONSTRAINT outfit_layer_pkey PRIMARY KEY (id),
+  CONSTRAINT outfit_layer_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES public.layer(id),
+  CONSTRAINT outfit_layer_outfit_id_fkey FOREIGN KEY (outfit_id) REFERENCES public.outfit(id)
+);
+
+CREATE TABLE public.weather (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  latitude double precision,
+  longitude double precision,
+  date date,
+  weather_data jsonb,
+  CONSTRAINT weather_pkey PRIMARY KEY (id)
+);`;
+      return {
+        contents: [{
+          uri: uri.href,
+          text: schema
+        }]
+      };
+    }
+  );
+}
+__name(register_schema, "register_schema");
+
 // src/index.ts
 var MyMCP = class extends McpAgent {
   constructor() {
@@ -30239,11 +30039,11 @@ var MyMCP = class extends McpAgent {
     console.log("error", error3);
     register_secret(this.server);
     register_layer(this.server, this.supabase);
-    register_greeting(this.server);
     register_get_outfit_details(this.server, this.supabase);
     register_calculate_outfit_warmth(this.server, this.supabase);
     register_logs(this.server, this.supabase);
     register_get_weather(this.server, this.supabase);
+    register_schema(this.server);
   }
 };
 var src_default = {
@@ -30312,7 +30112,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCtx
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-UZMjW9/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1Iwz8Z/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -30349,7 +30149,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-UZMjW9/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1Iwz8Z/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
