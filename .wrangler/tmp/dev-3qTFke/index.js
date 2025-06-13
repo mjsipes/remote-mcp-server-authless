@@ -29759,14 +29759,14 @@ function register_secret(server) {
 }
 __name(register_secret, "register_secret");
 
-// src/components/layer.ts
+// src/components/layer_tools.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-function register_layer(server, supabase) {
-  server.tool("get_layer", {}, async () => {
+function register_layer_tools(server, supabase) {
+  server.tool("get_all_layers", {}, async () => {
     const { data: layer, error: error3 } = await supabase.from("layer").select("*");
     if (error3) {
       return {
@@ -29780,16 +29780,114 @@ function register_layer(server, supabase) {
       content: [{ type: "text", text: JSON.stringify(layer, null, 2) }]
     };
   });
+  server.tool(
+    "insert_layer",
+    {
+      name: external_exports.string().optional(),
+      description: external_exports.string().optional(),
+      warmth: external_exports.number().optional(),
+      top: external_exports.boolean().optional(),
+      bottom: external_exports.boolean().optional()
+    },
+    async ({
+      name: name17 = null,
+      description = null,
+      warmth = null,
+      top = null,
+      bottom = null
+    }) => {
+      const { data, error: error3 } = await supabase.from("layer").insert({ name: name17, description, warmth, top, bottom }).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error inserting layer: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Layer created successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "update_layer",
+    {
+      id: external_exports.string(),
+      name: external_exports.string().optional(),
+      description: external_exports.string().optional(),
+      warmth: external_exports.number().optional(),
+      top: external_exports.boolean().optional(),
+      bottom: external_exports.boolean().optional()
+    },
+    async ({
+      id,
+      name: name17 = null,
+      description = null,
+      warmth = null,
+      top = null,
+      bottom = null
+    }) => {
+      const updates = {};
+      if (name17 !== null) updates.name = name17 || null;
+      if (description !== null) updates.description = description || null;
+      if (warmth !== null) updates.warmth = warmth || null;
+      if (top !== null) updates.top = top || null;
+      if (bottom !== null) updates.bottom = bottom || null;
+      const { data, error: error3 } = await supabase.from("layer").update(updates).eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error updating layer: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Layer updated successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "delete_layer",
+    {
+      id: external_exports.string()
+    },
+    async ({ id }) => {
+      const { data, error: error3 } = await supabase.from("layer").delete().eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error deleting layer: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Layer deleted successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
 }
-__name(register_layer, "register_layer");
+__name(register_layer_tools, "register_layer_tools");
 
-// src/components/get_outfit_details.ts
+// src/components/outfit_tools.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-function register_get_outfit_details(server, supabase) {
+function register_outfit_tools(server, supabase) {
+  server.tool(
+    "get_all_outfits",
+    {},
+    async () => {
+      const { data, error: error3 } = await supabase.from("outfit").select("*").order("created_at", { ascending: false });
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error getting outfits: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
   server.tool("get_outfit_details", { outfit_id: external_exports.string() }, async ({ outfit_id }) => {
     const { data, error: error3 } = await supabase.rpc("get_outfit_details", {
       outfit_uuid: outfit_id
@@ -29806,8 +29904,76 @@ function register_get_outfit_details(server, supabase) {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
     };
   });
+  server.tool(
+    "insert_outfit",
+    {
+      name: external_exports.string().optional()
+    },
+    async ({
+      name: name17 = null
+    }) => {
+      const { data, error: error3 } = await supabase.from("outfit").insert({
+        name: name17 || null,
+        total_warmth: 0
+      }).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error inserting outfit: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Outfit created successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "update_outfit",
+    {
+      id: external_exports.string(),
+      name: external_exports.string().optional(),
+      total_warmth: external_exports.number().optional()
+    },
+    async ({
+      id,
+      name: name17 = null,
+      total_warmth = null
+    }) => {
+      const updates = {};
+      if (name17 !== null) updates.name = name17 || null;
+      if (total_warmth !== null) updates.total_warmth = total_warmth || null;
+      const { data, error: error3 } = await supabase.from("outfit").update(updates).eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error updating outfit: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Outfit updated successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "delete_outfit",
+    {
+      id: external_exports.string()
+    },
+    async ({ id }) => {
+      const { data, error: error3 } = await supabase.from("outfit").delete().eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error deleting outfit: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Outfit deleted successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
 }
-__name(register_get_outfit_details, "register_get_outfit_details");
+__name(register_outfit_tools, "register_outfit_tools");
 
 // src/components/calculate_outfit_warmth.ts
 init_strip_cf_connecting_ip_header();
@@ -29835,13 +30001,13 @@ function register_calculate_outfit_warmth(server, supabase) {
 }
 __name(register_calculate_outfit_warmth, "register_calculate_outfit_warmth");
 
-// src/components/get_logs.ts
+// src/components/log_tools.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-function register_logs(server, supabase) {
+function register_log_tools(server, supabase) {
   server.tool(
     "get_logs_by_date",
     { date: external_exports.string() },
@@ -29903,16 +30069,132 @@ function register_logs(server, supabase) {
       };
     }
   );
+  server.tool(
+    "get_all_logs",
+    {},
+    async () => {
+      const { data, error: error3 } = await supabase.from("log").select("*");
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error getting all logs: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
+  server.tool(
+    "insert_log",
+    {
+      outfit_id: external_exports.string().optional(),
+      weather_id: external_exports.string().optional(),
+      date: external_exports.string().optional(),
+      comfort_level: external_exports.number().optional(),
+      feedback: external_exports.string().optional(),
+      was_too_hot: external_exports.boolean().optional(),
+      was_too_cold: external_exports.boolean().optional()
+    },
+    async ({
+      outfit_id = null,
+      weather_id = null,
+      date = null,
+      comfort_level = null,
+      feedback = null,
+      was_too_hot = null,
+      was_too_cold = null
+    }) => {
+      const { data, error: error3 } = await supabase.from("log").insert({
+        outfit_id: outfit_id || null,
+        weather_id: weather_id || null,
+        date: date || null,
+        comfort_level: comfort_level || null,
+        feedback: feedback || null,
+        was_too_hot: was_too_hot || null,
+        was_too_cold: was_too_cold || null
+      }).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error inserting log: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Log created successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "update_log",
+    {
+      id: external_exports.string(),
+      outfit_id: external_exports.string().optional(),
+      weather_id: external_exports.string().optional(),
+      date: external_exports.string().optional(),
+      comfort_level: external_exports.number().optional(),
+      feedback: external_exports.string().optional(),
+      was_too_hot: external_exports.boolean().optional(),
+      was_too_cold: external_exports.boolean().optional()
+    },
+    async ({
+      id,
+      outfit_id = null,
+      weather_id = null,
+      date = null,
+      comfort_level = null,
+      feedback = null,
+      was_too_hot = null,
+      was_too_cold = null
+    }) => {
+      const updates = {};
+      if (outfit_id !== null) updates.outfit_id = outfit_id || null;
+      if (weather_id !== null) updates.weather_id = weather_id || null;
+      if (date !== null) updates.date = date || null;
+      if (comfort_level !== null) updates.comfort_level = comfort_level || null;
+      if (feedback !== null) updates.feedback = feedback || null;
+      if (was_too_hot !== null) updates.was_too_hot = was_too_hot || null;
+      if (was_too_cold !== null) updates.was_too_cold = was_too_cold || null;
+      const { data, error: error3 } = await supabase.from("log").update(updates).eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error updating log: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Log updated successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "delete_log",
+    {
+      id: external_exports.string()
+    },
+    async ({ id }) => {
+      const { data, error: error3 } = await supabase.from("log").delete().eq("id", id).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error deleting log: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Log deleted successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
 }
-__name(register_logs, "register_logs");
+__name(register_log_tools, "register_log_tools");
 
-// src/components/get_weather.ts
+// src/components/weather_tools.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-function register_get_weather(server, supabase) {
+function register_weather_tools(server, supabase) {
   server.tool("get_weather", { lat: external_exports.number(), long: external_exports.number(), date: external_exports.string() }, async ({ lat, long, date }) => {
     const { data, error: error3 } = await supabase.functions.invoke("get_weather", {
       body: {
@@ -29934,8 +30216,21 @@ function register_get_weather(server, supabase) {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
     };
   });
+  server.tool("get_weather_by_id", { id: external_exports.string() }, async ({ id }) => {
+    const { data, error: error3 } = await supabase.from("weather").select("*").eq("id", id).single();
+    if (error3) {
+      return {
+        content: [
+          { type: "text", text: `Error getting weather: ${error3.message}` }
+        ]
+      };
+    }
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+    };
+  });
 }
-__name(register_get_weather, "register_get_weather");
+__name(register_weather_tools, "register_weather_tools");
 
 // src/components/schema.ts
 init_strip_cf_connecting_ip_header();
@@ -30015,6 +30310,69 @@ CREATE TABLE public.weather (
 }
 __name(register_schema, "register_schema");
 
+// src/components/outfit_layer_tools.ts
+init_strip_cf_connecting_ip_header();
+init_modules_watch_stub();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function register_outfit_layer_tools(server, supabase) {
+  server.tool(
+    "add_outfit_layer",
+    {
+      outfit_id: external_exports.string(),
+      layer_id: external_exports.string()
+    },
+    async ({ outfit_id, layer_id }) => {
+      const { data, error: error3 } = await supabase.from("outfit_layer").insert({
+        outfit_id: outfit_id || null,
+        layer_id: layer_id || null
+      }).select();
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error adding layer to outfit: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Layer added to outfit successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+  server.tool(
+    "delete_outfit_layer",
+    {
+      outfit_id: external_exports.string().optional(),
+      layer_id: external_exports.string().optional(),
+      id: external_exports.string().optional()
+    },
+    async ({ outfit_id = null, layer_id = null, id = null }) => {
+      let query = supabase.from("outfit_layer").delete().select();
+      if (id) {
+        query = query.eq("id", id);
+      } else if (outfit_id && layer_id) {
+        query = query.eq("outfit_id", outfit_id).eq("layer_id", layer_id);
+      } else {
+        return {
+          content: [{ type: "text", text: "Error: Must provide either 'id' or both 'outfit_id' and 'layer_id'" }],
+          isError: true
+        };
+      }
+      const { data, error: error3 } = await query;
+      if (error3) {
+        return {
+          content: [{ type: "text", text: `Error removing layer from outfit: ${error3.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: `Layer removed from outfit successfully: ${JSON.stringify(data, null, 2)}` }]
+      };
+    }
+  );
+}
+__name(register_outfit_layer_tools, "register_outfit_layer_tools");
+
 // src/index.ts
 var MyMCP = class extends McpAgent {
   constructor() {
@@ -30038,12 +30396,13 @@ var MyMCP = class extends McpAgent {
     console.log("data", data);
     console.log("error", error3);
     register_secret(this.server);
-    register_layer(this.server, this.supabase);
-    register_get_outfit_details(this.server, this.supabase);
-    register_calculate_outfit_warmth(this.server, this.supabase);
-    register_logs(this.server, this.supabase);
-    register_get_weather(this.server, this.supabase);
     register_schema(this.server);
+    register_layer_tools(this.server, this.supabase);
+    register_outfit_tools(this.server, this.supabase);
+    register_log_tools(this.server, this.supabase);
+    register_outfit_layer_tools(this.server, this.supabase);
+    register_calculate_outfit_warmth(this.server, this.supabase);
+    register_weather_tools(this.server, this.supabase);
   }
 };
 var src_default = {

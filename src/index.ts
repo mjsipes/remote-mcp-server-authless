@@ -2,12 +2,13 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { register_secret } from "./components/secret";
-import { register_layer } from "./components/layer";
-import { register_get_outfit_details } from "./components/get_outfit_details";
+import { register_layer_tools } from "./components/layer_tools";
+import { register_outfit_tools } from "./components/outfit_tools";
 import { register_calculate_outfit_warmth } from "./components/calculate_outfit_warmth";
-import { register_logs } from "./components/get_logs";
-import { register_get_weather } from "./components/get_weather";
+import { register_log_tools } from "./components/log_tools";
+import { register_weather_tools } from "./components/weather_tools";
 import { register_schema } from "./components/schema";
+import { register_outfit_layer_tools } from "./components/outfit_layer_tools";
 
 // Define Env interface
 interface Env {
@@ -41,12 +42,13 @@ export class MyMCP extends McpAgent {
 
     // Register all components directly
     register_secret(this.server);
-    register_layer(this.server, this.supabase);
-    register_get_outfit_details(this.server, this.supabase);
-    register_calculate_outfit_warmth(this.server, this.supabase);
-    register_logs(this.server, this.supabase);
-    register_get_weather(this.server, this.supabase);
     register_schema(this.server);
+    register_layer_tools(this.server, this.supabase);
+    register_outfit_tools(this.server, this.supabase);
+    register_log_tools(this.server, this.supabase);
+    register_outfit_layer_tools(this.server, this.supabase);
+    register_calculate_outfit_warmth(this.server, this.supabase);
+    register_weather_tools(this.server, this.supabase);
   }
 }
 
