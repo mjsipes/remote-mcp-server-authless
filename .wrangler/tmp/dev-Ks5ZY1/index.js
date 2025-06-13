@@ -33,14 +33,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// .wrangler/tmp/bundle-rdkrJB/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-UZMjW9/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
   return request;
 }
 var init_strip_cf_connecting_ip_header = __esm({
-  ".wrangler/tmp/bundle-rdkrJB/strip-cf-connecting-ip-header.js"() {
+  ".wrangler/tmp/bundle-UZMjW9/strip-cf-connecting-ip-header.js"() {
     "use strict";
     __name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -9177,14 +9177,14 @@ var require_browser = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-rdkrJB/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-UZMjW9/middleware-loader.entry.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 
-// .wrangler/tmp/bundle-rdkrJB/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-UZMjW9/middleware-insertion-facade.js
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -29994,25 +29994,6 @@ var createClient = /* @__PURE__ */ __name((supabaseUrl, supabaseKey, options) =>
   return new SupabaseClient(supabaseUrl, supabaseKey, options);
 }, "createClient");
 
-// src/components/add.ts
-init_strip_cf_connecting_ip_header();
-init_modules_watch_stub();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-init_performance2();
-function register_add(server) {
-  server.tool(
-    "add",
-    { a: external_exports.number(), b: external_exports.number() },
-    async ({ a, b }) => {
-      return {
-        content: [{ type: "text", text: String(a + b) }]
-      };
-    }
-  );
-}
-__name(register_add, "register_add");
-
 // src/components/secret.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
@@ -30132,6 +30113,108 @@ function register_calculate_outfit_warmth(server, supabase) {
 }
 __name(register_calculate_outfit_warmth, "register_calculate_outfit_warmth");
 
+// src/components/get_logs.ts
+init_strip_cf_connecting_ip_header();
+init_modules_watch_stub();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function register_logs(server, supabase) {
+  server.tool(
+    "get_logs_by_date",
+    { date: external_exports.string() },
+    async ({ date }) => {
+      const { data, error: error3 } = await supabase.rpc("get_logs_by_date", {
+        log_date: date
+        // ✅ Fixed: Use log_date parameter name
+      });
+      if (error3) {
+        return {
+          content: [
+            { type: "text", text: `Error getting logs by date: ${error3.message}` }
+          ]
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
+  server.tool(
+    "get_logs_date_range",
+    { start_date: external_exports.string(), end_date: external_exports.string() },
+    async ({ start_date, end_date }) => {
+      const { data, error: error3 } = await supabase.rpc("get_logs_date_range", {
+        start_date,
+        // ✅ These match the function parameters
+        end_date
+      });
+      if (error3) {
+        return {
+          content: [
+            { type: "text", text: `Error getting logs by date range: ${error3.message}` }
+          ]
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
+  server.tool(
+    "get_logs_by_outfit",
+    { outfit_id: external_exports.string() },
+    async ({ outfit_id }) => {
+      const { data, error: error3 } = await supabase.rpc("get_logs_by_outfit", {
+        outfit_uuid: outfit_id
+        // ✅ This was already correct
+      });
+      if (error3) {
+        return {
+          content: [
+            { type: "text", text: `Error getting logs by outfit: ${error3.message}` }
+          ]
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+      };
+    }
+  );
+}
+__name(register_logs, "register_logs");
+
+// src/components/get_weather.ts
+init_strip_cf_connecting_ip_header();
+init_modules_watch_stub();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function register_get_weather(server, supabase) {
+  server.tool("get_weather", { lat: external_exports.number(), long: external_exports.number(), date: external_exports.string() }, async ({ lat, long, date }) => {
+    const { data, error: error3 } = await supabase.functions.invoke("get_weather", {
+      body: {
+        latitude: lat,
+        longitude: long,
+        date,
+        unitGroup: "us"
+      }
+    });
+    if (error3) {
+      return {
+        content: [
+          { type: "text", text: `Error getting weather: ${error3.message}` }
+        ]
+      };
+    }
+    console.log("data", data);
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+    };
+  });
+}
+__name(register_get_weather, "register_get_weather");
+
 // src/index.ts
 var MyMCP = class extends McpAgent {
   constructor() {
@@ -30154,12 +30237,13 @@ var MyMCP = class extends McpAgent {
     const { data, error: error3 } = await this.supabase.from("layer").select("*");
     console.log("data", data);
     console.log("error", error3);
-    register_add(this.server);
     register_secret(this.server);
     register_layer(this.server, this.supabase);
     register_greeting(this.server);
     register_get_outfit_details(this.server, this.supabase);
     register_calculate_outfit_warmth(this.server, this.supabase);
+    register_logs(this.server, this.supabase);
+    register_get_weather(this.server, this.supabase);
   }
 };
 var src_default = {
@@ -30228,7 +30312,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCtx
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-rdkrJB/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-UZMjW9/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -30265,7 +30349,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-rdkrJB/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-UZMjW9/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
