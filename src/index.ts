@@ -7,6 +7,7 @@ import { register_layer } from "./components/layer";
 import { register_greeting } from "./components/greeting";
 import { register_get_outfit_details } from "./components/get_outfit_details";
 import { register_calculate_outfit_warmth } from "./components/calculate_outfit_warmth";
+import { register_logs } from "./components/get_logs";
 
 // Define Env interface
 interface Env {
@@ -45,6 +46,7 @@ export class MyMCP extends McpAgent {
     register_greeting(this.server);
     register_get_outfit_details(this.server, this.supabase);
     register_calculate_outfit_warmth(this.server, this.supabase);
+    register_logs(this.server, this.supabase);
   }
 }
 
