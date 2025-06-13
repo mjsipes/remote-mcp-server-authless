@@ -1,7 +1,6 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
-import { register_add } from "./components/add";
 import { register_secret } from "./components/secret";
 import { register_layer } from "./components/layer";
 import { register_greeting } from "./components/greeting";
@@ -40,7 +39,6 @@ export class MyMCP extends McpAgent {
     console.log("error", error);
 
     // Register all components directly
-    register_add(this.server);
     register_secret(this.server);
     register_layer(this.server, this.supabase);
     register_greeting(this.server);
