@@ -46,6 +46,52 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
   );
 
   server.tool(
+    "get_logs_date_range_v2",
+    { start_date: z.string(), end_date: z.string() },
+    async ({ start_date, end_date }) => {
+      const { data, error } = await supabase
+        .from('log')
+        .select(`
+          id,
+          date,
+          comfort_level,
+          feedback,
+          was_too_hot,
+          was_too_cold,
+          outfit (
+            name,
+            total_warmth,
+            outfit_layer (
+              layer (
+                name,
+                warmth
+              )
+            )
+          ),
+          weather (
+            weather_data
+          )
+        `)
+        .gte('date', start_date)
+        .lte('date', end_date)
+        .order('date', { ascending: false });
+  
+      if (error) {
+        return {
+          content: [
+            { type: "text", text: `Error getting logs by date range: ${error.message}` },
+          ],
+        };
+      }
+
+  
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    }
+  );
+
+  server.tool(
     "get_logs_by_outfit",
     { outfit_id: z.string() },
     async ({ outfit_id }) => {
