@@ -1,10 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
+
 
 export function register_calculate_outfit_warmth(server: McpServer, supabase: SupabaseClient) {
-  server.tool("calculate_outfit_warmth", {}, async () => {
+  server.tool("calculate_outfit_warmth", { outfit_id: z.string() }, async ({outfit_id}) => {
     const { data, error } = await supabase.rpc("calculate_outfit_warmth", {
-        outfit_uuid: "4efe9847-a023-4490-8257-0a3730ce1f2f"
+        outfit_uuid: outfit_id,
     });
 
     if (error) {

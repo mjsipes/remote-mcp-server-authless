@@ -1,10 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
+
 
 export function register_get_outfit_details(server: McpServer, supabase: SupabaseClient) {
-  server.tool("get_outfit_details", {}, async () => {
+  server.tool("get_outfit_details", { outfit_id: z.string() },  async ({outfit_id}) => {
     const { data, error } = await supabase.rpc("get_outfit_details", {
-        outfit_uuid: "4efe9847-a023-4490-8257-0a3730ce1f2f"
+        outfit_uuid: outfit_id,
     });
 
     if (error) {

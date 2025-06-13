@@ -30087,9 +30087,9 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 function register_get_outfit_details(server, supabase) {
-  server.tool("get_outfit_details", {}, async () => {
+  server.tool("get_outfit_details", { outfit_id: external_exports.string() }, async ({ outfit_id }) => {
     const { data, error: error3 } = await supabase.rpc("get_outfit_details", {
-      outfit_uuid: "4efe9847-a023-4490-8257-0a3730ce1f2f"
+      outfit_uuid: outfit_id
     });
     if (error3) {
       return {
@@ -30113,9 +30113,9 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 function register_calculate_outfit_warmth(server, supabase) {
-  server.tool("calculate_outfit_warmth", {}, async () => {
+  server.tool("calculate_outfit_warmth", { outfit_id: external_exports.string() }, async ({ outfit_id }) => {
     const { data, error: error3 } = await supabase.rpc("calculate_outfit_warmth", {
-      outfit_uuid: "4efe9847-a023-4490-8257-0a3730ce1f2f"
+      outfit_uuid: outfit_id
     });
     if (error3) {
       return {
