@@ -3,8 +3,8 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export function register_layer_tools(server: McpServer, supabase: SupabaseClient) {
-  console.log("register_layer_tools");
   server.tool("get_all_layers", {}, async () => {
+    console.log("get_all_layers");
     const { data: layer, error } = await supabase
       .from("layer")
       .select("*");

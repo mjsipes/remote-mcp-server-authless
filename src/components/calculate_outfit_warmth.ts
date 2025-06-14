@@ -4,8 +4,9 @@ import { z } from "zod";
 
 
 export function register_calculate_outfit_warmth(server: McpServer, supabase: SupabaseClient) {
-    console.log("register_calculate_outfit_warmth");
   server.tool("calculate_outfit_warmth", { outfit_id: z.string() }, async ({outfit_id}) => {
+    console.log("calculate_outfit_warmth");
+
     const { data, error } = await supabase.rpc("calculate_outfit_warmth", {
         outfit_uuid: outfit_id,
     });
