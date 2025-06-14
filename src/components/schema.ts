@@ -5,6 +5,7 @@ export function register_schema(server: McpServer) {
     "schema",
     "schema://database-schema",
     async (uri) => {
+      console.log("register_schema");
       const schema = `-- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 

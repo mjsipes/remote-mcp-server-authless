@@ -5,6 +5,7 @@ import { z } from "zod";
 
 export function register_weather_tools(server: McpServer, supabase: SupabaseClient) {
   server.tool("get_weather", { lat: z.number(), long: z.number(), date: z.string() },  async ({lat, long, date}) => {
+    console.log("get_weather");
     const { data, error } = await supabase.functions.invoke("get_weather", {
         body: { 
           latitude: lat,
@@ -30,6 +31,7 @@ export function register_weather_tools(server: McpServer, supabase: SupabaseClie
   });
 
   server.tool("get_weather_by_id", { id: z.string() }, async ({ id }) => {
+    console.log("get_weather_by_id");
     const { data, error } = await supabase
       .from("weather")
       .select("*")

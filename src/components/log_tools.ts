@@ -8,6 +8,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
     "get_logs_by_date",
     { date: z.string() },
     async ({ date }) => {
+      console.log("get_logs_by_date");
       const { data, error } = await supabase.rpc("get_logs_by_date", { 
         log_date: date  // ✅ Fixed: Use log_date parameter name
       });
@@ -28,6 +29,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
     "get_logs_date_range",
     { start_date: z.string(), end_date: z.string() },
     async ({ start_date, end_date }) => {
+      console.log("get_logs_date_range");
       const { data, error } = await supabase.rpc("get_logs_date_range", { 
         start_date,   // ✅ These match the function parameters
         end_date 
@@ -49,6 +51,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
     "get_logs_date_range_v2",
     { start_date: z.string(), end_date: z.string() },
     async ({ start_date, end_date }) => {
+      console.log("get_logs_date_range_v2");
       const { data, error } = await supabase
         .from('log')
         .select(`
@@ -95,6 +98,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
     "get_logs_by_outfit",
     { outfit_id: z.string() },
     async ({ outfit_id }) => {
+      console.log("get_logs_by_outfit");
       const { data, error } = await supabase.rpc("get_logs_by_outfit", { 
         outfit_uuid: outfit_id  // ✅ This was already correct
       });
@@ -115,6 +119,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
     "get_all_logs",
     {},
     async () => {
+      console.log("get_all_logs");
       const { data, error } = await supabase
         .from('log')
         .select('*');
@@ -152,6 +157,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
       was_too_hot = null, 
       was_too_cold = null 
     }) => {
+      console.log("insert_log");
       const { data, error } = await supabase
         .from('log')
         .insert({ 
@@ -201,6 +207,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
       was_too_hot = null, 
       was_too_cold = null 
     }) => {
+      console.log("update_log");
       const updates: { outfit_id?: string | null; weather_id?: string | null; date?: string | null; comfort_level?: number | null; feedback?: string | null; was_too_hot?: boolean | null; was_too_cold?: boolean | null } = {};
       if (outfit_id !== null) updates.outfit_id = outfit_id || null;
       if (weather_id !== null) updates.weather_id = weather_id || null;
@@ -235,6 +242,7 @@ export function register_log_tools(server: McpServer, supabase: SupabaseClient) 
       id: z.string()
     },
     async ({ id }) => {
+      console.log("delete_log");
       const { data, error } = await supabase
         .from('log')
         .delete()

@@ -3,6 +3,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export function register_layer_tools(server: McpServer, supabase: SupabaseClient) {
+  console.log("register_layer_tools");
   server.tool("get_all_layers", {}, async () => {
     const { data: layer, error } = await supabase
       .from("layer")
@@ -39,6 +40,7 @@ export function register_layer_tools(server: McpServer, supabase: SupabaseClient
       top = null, 
       bottom = null 
     }) => {
+      console.log("insert_layer");
       const { data, error } = await supabase
         .from('layer')
         .insert({ name, description, warmth, top, bottom })
@@ -75,6 +77,7 @@ export function register_layer_tools(server: McpServer, supabase: SupabaseClient
       top = null, 
       bottom = null 
     }) => {
+      console.log("update_layer");
       const updates: { name?: string | null; description?: string | null; warmth?: number | null; top?: boolean | null; bottom?: boolean | null } = {};
       if (name !== null) updates.name = name || null;
       if (description !== null) updates.description = description || null;
@@ -107,6 +110,7 @@ export function register_layer_tools(server: McpServer, supabase: SupabaseClient
       id: z.string()
     },
     async ({ id }) => {
+      console.log("delete_layer");
       const { data, error } = await supabase
         .from('layer')
         .delete()

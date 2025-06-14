@@ -7,6 +7,7 @@ export function register_outfit_tools(
   supabase: SupabaseClient
 ) {
   server.tool("get_all_outfits", {}, async () => {
+    console.log("get_all_outfits");
     const { data, error } = await supabase
       .from("outfit")
       .select("*")
@@ -30,6 +31,7 @@ export function register_outfit_tools(
     "get_outfit_details",
     { outfit_id: z.string() },
     async ({ outfit_id }) => {
+      console.log("get_outfit_details");
       const { data, error } = await supabase.rpc("get_outfit_details", {
         outfit_uuid: outfit_id,
       });
@@ -57,6 +59,7 @@ export function register_outfit_tools(
     "get_outfit_details_v2",
     { outfit_id: z.string() },
     async ({ outfit_id }) => {
+      console.log("get_outfit_details_v2");
       const { data, error } = await supabase
         .from("outfit")
         .select(
@@ -99,6 +102,7 @@ export function register_outfit_tools(
       name: z.string().optional(),
     },
     async ({ name = null }) => {
+      console.log("insert_outfit");
       const { data, error } = await supabase
         .from("outfit")
         .insert({
@@ -139,6 +143,7 @@ export function register_outfit_tools(
       total_warmth: z.number().optional(),
     },
     async ({ id, name = null, total_warmth = null }) => {
+      console.log("update_outfit");
       const updates: { name?: string | null; total_warmth?: number | null } =
         {};
       if (name !== null) updates.name = name || null;
@@ -180,6 +185,7 @@ export function register_outfit_tools(
       id: z.string(),
     },
     async ({ id }) => {
+      console.log("delete_outfit");
       const { data, error } = await supabase
         .from("outfit")
         .delete()

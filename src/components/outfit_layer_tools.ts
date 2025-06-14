@@ -10,6 +10,7 @@ export function register_outfit_layer_tools(server: McpServer, supabase: Supabas
           layer_id: z.string()
         },
         async ({ outfit_id, layer_id }) => {
+          console.log("add_outfit_layer");
           const { data, error } = await supabase
             .from('outfit_layer')
             .insert({ 
@@ -39,6 +40,7 @@ export function register_outfit_layer_tools(server: McpServer, supabase: Supabas
           id: z.string().optional()
         },
         async ({ outfit_id = null, layer_id = null, id = null }) => {
+          console.log("delete_outfit_layer");
           let query = supabase.from('outfit_layer').delete().select();
           
           if (id) {
